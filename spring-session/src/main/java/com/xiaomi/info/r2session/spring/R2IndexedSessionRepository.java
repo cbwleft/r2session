@@ -1,6 +1,6 @@
-package com.xiaomi.info;
+package com.xiaomi.info.r2session.spring;
 
-import com.xiaomi.info.r2session.api.R2SessionClient;
+import com.xiaomi.info.r2session.api.BlockingSessionClient;
 import org.springframework.session.FindByIndexNameSessionRepository;
 
 import java.util.Map;
@@ -15,15 +15,15 @@ import java.util.Map;
 public class R2IndexedSessionRepository
         implements FindByIndexNameSessionRepository<R2Session> {
 
-    private final R2SessionClient client;
+    private final BlockingSessionClient client;
 
-    public R2IndexedSessionRepository(R2SessionClient client) {
+    public R2IndexedSessionRepository(BlockingSessionClient client) {
         this.client = client;
     }
 
     @Override
     public Map<String, R2Session> findByIndexNameAndIndexValue(String indexName, String indexValue) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

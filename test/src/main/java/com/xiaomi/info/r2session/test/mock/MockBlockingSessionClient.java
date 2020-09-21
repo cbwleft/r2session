@@ -1,6 +1,6 @@
-package com.xiaomi.info.r2session.test;
+package com.xiaomi.info.r2session.test.mock;
 
-import com.xiaomi.info.r2session.api.R2SessionClient;
+import com.xiaomi.info.r2session.api.BlockingSessionClient;
 
 import java.util.*;
 
@@ -11,7 +11,7 @@ import java.util.*;
  * @author cuibowen@xiaomi.com
  * Date:2020/9/19 14:48
  */
-public class MockR2SessionClient implements R2SessionClient {
+public class MockBlockingSessionClient implements BlockingSessionClient {
 
     private Map<String, Map<String, String>> sessions = new HashMap<>();
 

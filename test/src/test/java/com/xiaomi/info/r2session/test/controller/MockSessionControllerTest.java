@@ -1,6 +1,5 @@
 package com.xiaomi.info.r2session.test.controller;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Date:2020/9/20 23:04
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class SessionControllerTest {
+class MockSessionControllerTest {
 
     private WebClient webClient;
 
@@ -123,10 +122,11 @@ class SessionControllerTest {
         ClientResponse response2 = webClient.get().uri("/attributeNames")
                 .cookies(toConsumer(response.cookies())).exchange().block();
         assertNotNull(response2);
-        ResponseEntity<List<String>> entity2 = response2.toEntity(new ParameterizedTypeReference<List<String>>() {}).block();
+        ResponseEntity<List<String>> entity2 = response2.toEntity(new ParameterizedTypeReference<List<String>>() {
+        }).block();
         System.out.println(entity2);
-        assertArrayEquals(new String[] {"key1"}, entity2.getBody().toArray(new String[0]));
-}
+        assertArrayEquals(new String[]{"key1"}, entity2.getBody().toArray(new String[0]));
+    }
 
     private Consumer<MultiValueMap<String, String>> toConsumer(MultiValueMap<String, ResponseCookie> cookies) {
         return c -> cookies.toSingleValueMap().forEach((k, v) -> c.add(k, v.getValue()));

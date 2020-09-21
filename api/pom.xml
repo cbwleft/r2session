@@ -11,5 +11,11 @@
 
     <artifactId>r2session-api</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

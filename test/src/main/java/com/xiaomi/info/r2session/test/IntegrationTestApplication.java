@@ -1,11 +1,7 @@
 package com.xiaomi.info.r2session.test;
 
-import com.xiaomi.info.R2IndexedSessionRepository;
-import com.xiaomi.info.R2Session;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 
 /**
@@ -17,15 +13,10 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
  */
 @EnableSpringHttpSession
 @SpringBootApplication
-public class Application {
-
-    @Bean
-    public SessionRepository<R2Session> sessionRepository() {
-        return new R2IndexedSessionRepository(new MockR2SessionClient());
-    }
+public class IntegrationTestApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class);
+        SpringApplication.run(IntegrationTestApplication.class);
     }
 
 }

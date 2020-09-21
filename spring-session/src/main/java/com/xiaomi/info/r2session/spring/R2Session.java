@@ -1,15 +1,15 @@
-package com.xiaomi.info;
+package com.xiaomi.info.r2session.spring;
 
-import com.xiaomi.info.r2session.api.R2SessionClient;
+import com.xiaomi.info.r2session.api.BlockingSessionClient;
 import org.springframework.session.Session;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.UUID;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Copyright (c) 2020 XiaoMi Inc.All Rights Reserved.
@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.*;
 public class R2Session implements Session {
 
     private final String id;
-    private final R2SessionClient client;
+    private final BlockingSessionClient client;
 
     private enum Keys {
 
@@ -39,13 +39,13 @@ public class R2Session implements Session {
 
     }
 
-    public R2Session(R2SessionClient client){
+    public R2Session(BlockingSessionClient client){
         id = UUID.randomUUID().toString();
         this.client = client;
         client.set(id, Keys.CREATION_TIME.name, String.valueOf(System.currentTimeMillis()));
     }
 
-    public R2Session(R2SessionClient client, String id) {
+    public R2Session(BlockingSessionClient client, String id) {
         this.id = id;
         this.client = client;
     }
@@ -97,7 +97,7 @@ public class R2Session implements Session {
 
     @Override
     public void setMaxInactiveInterval(Duration interval) {
-
+        //TODO ttl
     }
 
     @Override
@@ -110,6 +110,7 @@ public class R2Session implements Session {
         return client.exist(id);
     }
 
+    //TODO serialize
     private Object deSerialize(String value) {
         return value;
     }

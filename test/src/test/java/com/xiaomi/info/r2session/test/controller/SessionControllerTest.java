@@ -1,8 +1,10 @@
 package com.xiaomi.info.r2session.test.controller;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +28,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SessionControllerTest {
 
-    private final WebClient webClient = WebClient.create("http://localhost:8080");
+    private WebClient webClient;
+
+    @BeforeEach
+    private void setUp(@LocalServerPort int port) {
+        webClient = WebClient.create("http://localhost:" + port);
+    }
 
     @Test
     public void shouldReturnSameSessionId() {

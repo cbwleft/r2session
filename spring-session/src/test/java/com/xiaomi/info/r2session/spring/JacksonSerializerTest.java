@@ -5,9 +5,7 @@ import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -56,6 +54,15 @@ class JacksonSerializerTest {
         Object result = jacksonSerializer.deserializeFromByteArray(bytes);
         System.out.println(result);
         assertThat(result, equalTo(testObject));
+    }
+
+    @Test
+    public void shouldDeserializeAsOriginalList() throws IOException {
+        List<String> list = Arrays.asList("1", "2", "3");
+        byte[] bytes = jacksonSerializer.serializeToByteArray(list);
+        Object result = jacksonSerializer.deserializeFromByteArray(bytes);
+        System.out.println(result);
+        assertThat(result, equalTo(list));
     }
 
 }

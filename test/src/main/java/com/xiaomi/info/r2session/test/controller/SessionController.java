@@ -1,10 +1,7 @@
 package com.xiaomi.info.r2session.test.controller;
 
 import lombok.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
@@ -40,12 +37,18 @@ public class SessionController {
         return session.isNew();
     }
 
-    @PutMapping("/attribute/{key}/{value}")
+    @PutMapping("/attribute/{key}")
     public String setAttribute(@PathVariable String key,
-                               @PathVariable String value,
+                               @RequestParam String value,
                                HttpSession session) {
         session.setAttribute(key, value);
         return session.getId();
+    }
+
+    @GetMapping("/attribute/{key}")
+    public Object getAttribute(@PathVariable String key,
+                               HttpSession session) {
+        return session.getAttribute(key);
     }
 
     @GetMapping("/attributeNames")

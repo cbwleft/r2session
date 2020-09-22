@@ -11,10 +11,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -114,7 +117,7 @@ class MockSessionControllerTest {
 
     @Test
     public void shouldReturnAttributeNames() {
-        ClientResponse response = webClient.put().uri("/attribute/key1/value1").exchange().block();
+        ClientResponse response = webClient.put().uri("/attribute/key1?value=value1").exchange().block();
         assertNotNull(response);
         ResponseEntity<String> entity = response.toEntity(String.class).block();
         assertNotNull(entity);
@@ -125,7 +128,21 @@ class MockSessionControllerTest {
         ResponseEntity<List<String>> entity2 = response2.toEntity(new ParameterizedTypeReference<List<String>>() {
         }).block();
         System.out.println(entity2);
-        assertArrayEquals(new String[]{"key1"}, entity2.getBody().toArray(new String[0]));
+        assertThat(Arrays.asList("key1"), equalTo(entity2.getBody()));
+    }
+
+    @Test
+    public void shouldReturnAttribute() {
+        ClientResponse response = webClient.put()
+                .uri("/attribute/key1?value={value}", " ?&/").exchange().block();
+        assertNotNull(response);
+        ResponseEntity<String> entity = response.toEntity(String.class).block();
+        assertNotNull(entity);
+        System.out.println(entity);
+        String response2 = webClient.get().uri("/attribute/key1")
+                .cookies(toConsumer(response.cookies())).retrieve().bodyToMono(String.class).block();
+        System.out.println(response2);
+        assertEquals(" ?&/", response2);
     }
 
     private Consumer<MultiValueMap<String, String>> toConsumer(MultiValueMap<String, ResponseCookie> cookies) {

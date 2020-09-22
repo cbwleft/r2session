@@ -31,8 +31,8 @@ public class Handler {
     public Mono<ServerResponse> get(ServerRequest request) {
         String id = request.pathVariable("id");
         String key = request.pathVariable("key");
-        return ok().contentType(TEXT_PLAIN).body(
-                reactiveStringRedisTemplate.opsForHash().get(id, key).map(String::valueOf), String.class);
+        return ok().contentType(APPLICATION_JSON).body(
+                reactiveStringRedisTemplate.opsForHash().get(id, key).map(String.class::cast), String.class);
     }
 
     public Mono<ServerResponse> set(ServerRequest request) {

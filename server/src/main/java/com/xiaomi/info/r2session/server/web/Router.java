@@ -23,7 +23,7 @@ public class Router {
     public RouterFunction<ServerResponse> route(Handler handler) {
         return RouterFunctions
                 .route()
-                .GET("/get/{id}/{key}", accept(TEXT_PLAIN), handler::get)
+                .GET("/get/{id}/{key}", accept(APPLICATION_JSON), handler::get)
                 .GET("/set/{id}/{key}", accept(APPLICATION_JSON), handler::set)
                 .GET("/keys/{id}", accept(APPLICATION_JSON), handler::keys)
                 .GET("/del/{id}", accept(APPLICATION_JSON), handler::del)

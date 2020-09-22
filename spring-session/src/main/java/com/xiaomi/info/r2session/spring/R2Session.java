@@ -3,6 +3,8 @@ package com.xiaomi.info.r2session.spring;
 import com.xiaomi.info.r2session.api.BlockingSessionClient;
 import org.springframework.session.Session;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -22,6 +24,8 @@ public class R2Session implements Session {
 
     private final String id;
     private final BlockingSessionClient client;
+
+    private final JacksonSerializer serializer = new JacksonSerializer();
 
     private enum Keys {
 
@@ -72,8 +76,13 @@ public class R2Session implements Session {
 
     @Override
     public void setAttribute(String attributeName, Object attributeValue) {
-        client.set(id, attributeName, serialize(attributeValue));
+        if (attributeValue == null) {
+            removeAttribute(attributeName);
+        } else {
+            client.set(id, attributeName, serialize(attributeValue));
+        }
     }
+
 
     @Override
     public void removeAttribute(String attributeName) {
@@ -110,13 +119,26 @@ public class R2Session implements Session {
         return client.exist(id);
     }
 
-    //TODO serialize
     private Object deSerialize(String value) {
-        return value;
+        if (value == null) {
+            return null;
+        }
+        try {
+            return serializer.deserializeFromByteArray(value.getBytes());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private String serialize(Object value) {
-        return String.valueOf(value);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return new String(serializer.serializeToByteArray(value));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
 }

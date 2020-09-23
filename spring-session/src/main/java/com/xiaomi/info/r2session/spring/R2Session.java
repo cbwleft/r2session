@@ -29,7 +29,7 @@ public class R2Session implements Session {
 
     private final R2SessionSerializer serializer = R2SessionSerializer.instance();
 
-    public static final Duration DEFAULT_INACTIVE_INTERVAL = Duration.ofMinutes(30);
+    public static final Duration DEFAULT_INACTIVE_INTERVAL = Duration.ofSeconds(1800);
 
     private enum Key {
 
@@ -52,6 +52,7 @@ public class R2Session implements Session {
         id = UUID.randomUUID().toString();
         this.client = client;
         set(Key.CREATION_TIME, String.valueOf(System.currentTimeMillis()));
+        set(Key.MAX_INACTIVE_INTERVAL, String.valueOf(DEFAULT_INACTIVE_INTERVAL.getSeconds()));
     }
 
     public R2Session(BlockingSessionClient client, String id) {

@@ -1,5 +1,6 @@
 package com.xiaomi.info.r2session.api;
 
+import java.time.Duration;
 import java.util.Set;
 
 /**
@@ -22,5 +23,7 @@ public interface BlockingSessionClient {
     void set(String id, String key, String value);
 
     void del(String id, String key);
+
+    void expire(String id, Duration ttl);
 
 }

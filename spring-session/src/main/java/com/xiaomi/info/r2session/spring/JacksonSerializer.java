@@ -14,7 +14,7 @@ import java.io.*;
  * @author cuibowen@xiaomi.com
  * Date:2020/9/22 17:53
  */
-public class JacksonSerializer implements Serializer<Object>, Deserializer<Object> {
+class JacksonSerializer implements Serializer<Object>, Deserializer<Object> {
 
     private final ObjectMapper mapper = new ObjectMapper();
 

@@ -2,6 +2,7 @@ package com.xiaomi.info.r2session.test.mock;
 
 import com.xiaomi.info.r2session.api.BlockingSessionClient;
 
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -42,6 +43,10 @@ public class MockBlockingSessionClient implements BlockingSessionClient {
     @Override
     public void del(String id, String key) {
         getSession(id).ifPresent(session -> session.remove(key));
+    }
+
+    @Override
+    public void expire(String id, Duration ttl) {
     }
 
     @Override

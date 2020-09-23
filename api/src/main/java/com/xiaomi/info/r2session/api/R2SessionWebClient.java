@@ -4,6 +4,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Set;
 
 /**
@@ -35,7 +36,8 @@ public class R2SessionWebClient implements R2SessionClient {
     @Override
     public Mono<Set<String>> keys(String id) {
         return webClient.get().uri("/keys/{id}", id).retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Set<String>>() {});
+                .bodyToMono(new ParameterizedTypeReference<Set<String>>() {
+                });
     }
 
     @Override
@@ -53,6 +55,12 @@ public class R2SessionWebClient implements R2SessionClient {
         return webClient.get().uri("/exist/{id}", id).retrieve().bodyToMono(Boolean.class);
     }
 
+    @Override
+    public Mono<Boolean> expire(String id, Duration ttl) {
+        return webClient.get().uri("/expire/{id}?ttl={ttl}", id, ttl.getSeconds())
+                .retrieve().bodyToMono(Boolean.class);
+    }
+
     public BlockingSessionClient blockingClient() {
         return new BlockingSessionClientImpl(this);
     }
@@ -61,7 +69,7 @@ public class R2SessionWebClient implements R2SessionClient {
 
         private final R2SessionClient client;
 
-        private BlockingSessionClientImpl(R2SessionClient client){
+        private BlockingSessionClientImpl(R2SessionClient client) {
             this.client = client;
         }
 
@@ -93,6 +101,11 @@ public class R2SessionWebClient implements R2SessionClient {
         @Override
         public void del(String id, String key) {
             client.del(id, key).block();
+        }
+
+        @Override
+        public void expire(String id, Duration ttl) {
+            client.expire(id, ttl).block();
         }
     }
 

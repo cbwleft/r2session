@@ -7,8 +7,10 @@ import org.springframework.session.Session;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -22,35 +24,52 @@ import static java.util.stream.Collectors.toSet;
 public class R2Session implements Session {
 
     private final String id;
+
     private final BlockingSessionClient client;
 
     private final R2SessionSerializer serializer = R2SessionSerializer.instance();
 
-    private enum Keys {
+    public static final Duration DEFAULT_INACTIVE_INTERVAL = Duration.ofMinutes(30);
+
+    private enum Key {
 
         CREATION_TIME("_creationTime"),
-        LAST_ACCESSED_TIME("_lastAccessedTime");
+        LAST_ACCESSED_TIME("_lastAccessedTime"),
+        MAX_INACTIVE_INTERVAL("_maxInactiveInterval");
         private final String name;
 
-        Keys(String name) {
+        Key(String name) {
             this.name = name;
         }
 
         static boolean contains(String key) {
-            return Arrays.stream(Keys.values()).anyMatch(k -> k.name.equals(key));
+            return Arrays.stream(Key.values()).anyMatch(k -> k.name.equals(key));
         }
 
     }
 
-    public R2Session(BlockingSessionClient client){
+    public R2Session(BlockingSessionClient client) {
         id = UUID.randomUUID().toString();
         this.client = client;
-        client.set(id, Keys.CREATION_TIME.name, String.valueOf(System.currentTimeMillis()));
+        set(Key.CREATION_TIME, String.valueOf(System.currentTimeMillis()));
     }
 
     public R2Session(BlockingSessionClient client, String id) {
         this.id = id;
         this.client = client;
+    }
+
+    private final ConcurrentHashMap<Key, String> cache = new ConcurrentHashMap<>();
+
+    private void set(Key key, String value) {
+        cache.computeIfAbsent(key, (k) -> {
+            client.set(id, k.name, value);
+            return value;
+        });
+    }
+
+    private String get(Key key) {
+        return cache.computeIfAbsent(key, (k) -> client.get(id, key.name));
     }
 
     @Override
@@ -70,7 +89,7 @@ public class R2Session implements Session {
 
     @Override
     public Set<String> getAttributeNames() {
-        return client.keys(id).stream().filter(k -> !Keys.contains(k)).collect(toSet());
+        return client.keys(id).stream().filter(k -> !Key.contains(k)).collect(toSet());
     }
 
     @Override
@@ -89,27 +108,29 @@ public class R2Session implements Session {
 
     @Override
     public Instant getCreationTime() {
-        return Instant.ofEpochMilli(Long.parseLong(client.get(id, Keys.CREATION_TIME.name)));
+        return Instant.ofEpochMilli(Long.parseLong(client.get(id, Key.CREATION_TIME.name)));
     }
 
     @Override
     public void setLastAccessedTime(Instant lastAccessedTime) {
-        client.set(id, Keys.LAST_ACCESSED_TIME.name, String.valueOf(lastAccessedTime.toEpochMilli()));
+        set(Key.LAST_ACCESSED_TIME, String.valueOf(lastAccessedTime.toEpochMilli()));
+        client.expire(id, getMaxInactiveInterval());
     }
 
     @Override
     public Instant getLastAccessedTime() {
-        return Instant.ofEpochMilli(Long.parseLong(client.get(id, Keys.LAST_ACCESSED_TIME.name)));
+        return Instant.ofEpochMilli(Long.parseLong(get(Key.LAST_ACCESSED_TIME)));
     }
 
     @Override
     public void setMaxInactiveInterval(Duration interval) {
-        //TODO ttl
+        set(Key.MAX_INACTIVE_INTERVAL, String.valueOf(interval.getSeconds()));
     }
 
     @Override
     public Duration getMaxInactiveInterval() {
-        return null;
+        return Optional.ofNullable(get(Key.MAX_INACTIVE_INTERVAL))
+                .map(Long::parseLong).map(Duration::ofSeconds).orElse(DEFAULT_INACTIVE_INTERVAL);
     }
 
     @Override

@@ -31,9 +31,13 @@ public class R2IndexedSessionRepository
         return new R2Session(client);
     }
 
+    /**
+     * Some implementations may choose to save as the Session is updated by
+     * returning a Session that immediately persists any changes.
+     * In this case, this method may not actually do anything.
+     */
     @Override
     public void save(R2Session session) {
-
     }
 
     @Override

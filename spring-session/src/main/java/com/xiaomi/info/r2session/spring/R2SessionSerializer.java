@@ -11,7 +11,7 @@ import java.util.Optional;
  * @author cuibowen@xiaomi.com
  * Date:2020/9/23 9:45
  */
-public abstract class R2SessionSerializer {
+abstract class R2SessionSerializer {
 
     abstract Optional<Object> deSerialize(@Nullable String value);
 

@@ -25,10 +25,11 @@ public class Router {
                 .route()
                 .GET("/get/{id}/{key}", accept(APPLICATION_JSON), handler::get)
                 .GET("/set/{id}/{key}", accept(APPLICATION_JSON), handler::set)
-                .GET("/keys/{id}", accept(APPLICATION_JSON), handler::keys)
-                .GET("/del/{id}", accept(APPLICATION_JSON), handler::del)
                 .GET("/del/{id}/{key}", accept(APPLICATION_JSON), handler::del)
+                .GET("/del/{id}", accept(APPLICATION_JSON), handler::del)
+                .GET("/keys/{id}", accept(APPLICATION_JSON), handler::keys)
                 .GET("/exist/{id}", accept(APPLICATION_JSON), handler::exist)
+                .GET("/expire/{id}", accept(APPLICATION_JSON), handler::expire)
                 .build();
     }
 

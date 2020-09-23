@@ -8,11 +8,13 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static org.springframework.http.MediaType.*;
+import static org.springframework.web.reactive.function.server.ServerResponse.*;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 /**
@@ -40,8 +42,8 @@ public class Handler {
         String key = request.pathVariable("key");
         Optional<String> value = request.queryParam("value");
         return value.map(s -> ok().contentType(APPLICATION_JSON).body(
-                reactiveStringRedisTemplate.opsForHash().put(id, key, s), Boolean.class
-        )).orElseGet(() -> ServerResponse.badRequest().bodyValue("value can't be null"));
+                reactiveStringRedisTemplate.opsForHash().put(id, key, s), Boolean.class))
+                .orElseGet(() -> badRequest().bodyValue("value can't be null"));
     }
 
     public Mono<ServerResponse> keys(ServerRequest request) {
@@ -55,6 +57,14 @@ public class Handler {
         String id = request.pathVariable("id");
         return ok().contentType(APPLICATION_JSON).body(
                 reactiveStringRedisTemplate.hasKey(id), Boolean.class);
+    }
+
+    public Mono<ServerResponse> expire(ServerRequest request) {
+        String id = request.pathVariable("id");
+        Optional<Duration> ttl = request.queryParam("ttl").map(Long::parseLong).map(Duration::ofSeconds);
+        return ttl.map(duration -> ok().contentType(APPLICATION_JSON).body(
+                reactiveStringRedisTemplate.expire(id, duration), Boolean.class))
+                .orElseGet(() -> badRequest().bodyValue("ttl can't be null"));
     }
 
     public Mono<ServerResponse> del(ServerRequest request) {

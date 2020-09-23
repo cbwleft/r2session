@@ -2,6 +2,7 @@ package com.xiaomi.info.r2session.api;
 
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Set;
 
 /**
@@ -17,11 +18,13 @@ public interface R2SessionClient {
 
     Mono<Boolean> set(String id, String key, String value);
 
-    Mono<Set<String>> keys(String id);
+    Mono<Boolean> del(String id, String key);
 
     Mono<Boolean> del(String id);
 
-    Mono<Boolean> del(String id, String key);
+    Mono<Set<String>> keys(String id);
 
     Mono<Boolean> exist(String id);
+
+    Mono<Boolean> expire(String id, Duration ttl);
 }

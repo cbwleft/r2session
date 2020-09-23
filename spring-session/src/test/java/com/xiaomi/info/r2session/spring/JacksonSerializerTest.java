@@ -4,7 +4,6 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,7 +22,7 @@ class JacksonSerializerTest {
     private final JacksonSerializer jacksonSerializer = new JacksonSerializer();
 
     @Test
-    public void shouldSerializeAsJson() throws IOException {
+    public void shouldSerializeAsJson() {
         Map<String, Object> testObject = new HashMap<>();
         testObject.put("testString", "1");
         testObject.put("testInt", 2);
@@ -37,7 +36,7 @@ class JacksonSerializerTest {
     }
 
     @Test
-    public void shouldSerializeString() throws IOException {
+    public void shouldSerializeString() {
         String testString = "testString";
         String typedJson = new String(jacksonSerializer.serializeToByteArray(testString));
         System.out.println(typedJson);
@@ -45,7 +44,7 @@ class JacksonSerializerTest {
     }
 
     @Test
-    public void shouldDeserializeAsOriginalObject() throws IOException {
+    public void shouldDeserializeAsOriginalObject() {
         Map<String, Object> testObject = new HashMap<>();
         testObject.put("testString", "1");
         testObject.put("testInt", 2);
@@ -57,7 +56,7 @@ class JacksonSerializerTest {
     }
 
     @Test
-    public void shouldDeserializeAsOriginalList() throws IOException {
+    public void shouldDeserializeAsOriginalList() {
         List<String> list = Arrays.asList("1", "2", "3");
         byte[] bytes = jacksonSerializer.serializeToByteArray(list);
         Object result = jacksonSerializer.deserializeFromByteArray(bytes);

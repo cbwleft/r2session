@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.serializer.Deserializer;
 import org.springframework.core.serializer.Serializer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 /**
  * Copyright (c) 2020 XiaoMi Inc.All Rights Reserved.
@@ -30,8 +28,28 @@ public class JacksonSerializer implements Serializer<Object>, Deserializer<Objec
     }
 
     @Override
+    public Object deserializeFromByteArray(byte[] serialized) {
+        try {
+            return deserialize(new ByteArrayInputStream(serialized));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
     public void serialize(Object object, OutputStream outputStream) throws IOException {
         mapper.writeValue(outputStream, object);
+    }
+
+    @Override
+    public byte[] serializeToByteArray(Object object) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
+        try {
+            serialize(object, out);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return out.toByteArray();
     }
 
 }

@@ -1,10 +1,9 @@
 package com.xiaomi.info.r2session.spring;
 
 import com.xiaomi.info.r2session.api.BlockingSessionClient;
+import org.springframework.lang.Nullable;
 import org.springframework.session.Session;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -25,7 +24,7 @@ public class R2Session implements Session {
     private final String id;
     private final BlockingSessionClient client;
 
-    private final JacksonSerializer serializer = new JacksonSerializer();
+    private final R2SessionSerializer serializer = R2SessionSerializer.instance();
 
     private enum Keys {
 
@@ -66,7 +65,7 @@ public class R2Session implements Session {
 
     @Override
     public <T> T getAttribute(String attributeName) {
-        return (T) deSerialize(client.get(id, attributeName));
+        return (T) serializer.deSerialize(client.get(id, attributeName)).orElse(null);
     }
 
     @Override
@@ -75,14 +74,13 @@ public class R2Session implements Session {
     }
 
     @Override
-    public void setAttribute(String attributeName, Object attributeValue) {
+    public void setAttribute(String attributeName, @Nullable Object attributeValue) {
         if (attributeValue == null) {
             removeAttribute(attributeName);
         } else {
-            client.set(id, attributeName, serialize(attributeValue));
+            client.set(id, attributeName, serializer.serialize(attributeValue).get());
         }
     }
-
 
     @Override
     public void removeAttribute(String attributeName) {
@@ -117,28 +115,6 @@ public class R2Session implements Session {
     @Override
     public boolean isExpired() {
         return client.exist(id);
-    }
-
-    private Object deSerialize(String value) {
-        if (value == null) {
-            return null;
-        }
-        try {
-            return serializer.deserializeFromByteArray(value.getBytes());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private String serialize(Object value) {
-        if (value == null) {
-            return null;
-        }
-        try {
-            return new String(serializer.serializeToByteArray(value));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
 }

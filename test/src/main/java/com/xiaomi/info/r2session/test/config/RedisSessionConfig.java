@@ -24,9 +24,12 @@ public class RedisSessionConfig {
     @Value("${r2session.base-url}")
     private String baseUrl;
 
+    @Value("${r2session.app-id}")
+    private String appId;
+
     @Bean
     public BlockingSessionClient blockingSessionClient() {
-        return new R2SessionWebClient(baseUrl).blockingClient();
+        return new R2SessionWebClient(baseUrl, appId).blockingClient();
     }
 
     @Bean

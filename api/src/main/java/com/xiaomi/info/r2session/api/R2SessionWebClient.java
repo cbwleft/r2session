@@ -5,6 +5,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -16,49 +17,67 @@ import java.util.Set;
  */
 public class R2SessionWebClient implements R2SessionClient {
 
+    private final String appId;
+
     private final WebClient webClient;
 
-    public R2SessionWebClient(String baseUrl) {
+    public static final String APP_ID = "appId";
+
+    /**
+     *
+     * @param baseUrl r2session Server地址
+     * @param appId 小写字母和数字组成，下划线分隔多个单词
+     */
+    public R2SessionWebClient(String baseUrl, String appId) {
+        if (!Objects.requireNonNull(appId).matches("^[a-z][a-z0-9_]*$")) {
+            throw new IllegalArgumentException("appId只能由小写字母、数字、下划线组成");
+        }
+        this.appId = appId;
         webClient = WebClient.create(baseUrl);
     }
 
     @Override
     public Mono<String> get(String id, String key) {
-        return webClient.get().uri("/get/{id}/{key}", id, key).retrieve().bodyToMono(String.class);
+        return webClient.get().uri("/get/{id}/{key}", id, key)
+                .header(APP_ID, appId).retrieve().bodyToMono(String.class);
     }
 
     @Override
     public Mono<Boolean> set(String id, String key, String value) {
-        return webClient.get().uri("/set/{id}/{key}?value={value}", id, key, value).retrieve()
-                .bodyToMono(Boolean.class);
+        return webClient.get().uri("/set/{id}/{key}?value={value}", id, key, value)
+                .header(APP_ID, appId).retrieve().bodyToMono(Boolean.class);
     }
 
     @Override
     public Mono<Set<String>> keys(String id) {
-        return webClient.get().uri("/keys/{id}", id).retrieve()
+        return webClient.get().uri("/keys/{id}", id)
+                .header(APP_ID, appId).retrieve()
                 .bodyToMono(new ParameterizedTypeReference<Set<String>>() {
                 });
     }
 
     @Override
     public Mono<Boolean> del(String id) {
-        return webClient.get().uri("/del/{id}", id).retrieve().bodyToMono(Boolean.class);
+        return webClient.get().uri("/del/{id}", id)
+                .header(APP_ID, appId).retrieve().bodyToMono(Boolean.class);
     }
 
     @Override
     public Mono<Boolean> del(String id, String key) {
-        return webClient.get().uri("/del/{id}/{key}", id, key).retrieve().bodyToMono(Boolean.class);
+        return webClient.get().uri("/del/{id}/{key}", id, key)
+                .header(APP_ID, appId).retrieve().bodyToMono(Boolean.class);
     }
 
     @Override
     public Mono<Boolean> exist(String id) {
-        return webClient.get().uri("/exist/{id}", id).retrieve().bodyToMono(Boolean.class);
+        return webClient.get().uri("/exist/{id}", id)
+                .header(APP_ID, appId).retrieve().bodyToMono(Boolean.class);
     }
 
     @Override
     public Mono<Boolean> expire(String id, Duration ttl) {
         return webClient.get().uri("/expire/{id}?ttl={ttl}", id, ttl.getSeconds())
-                .retrieve().bodyToMono(Boolean.class);
+                .header(APP_ID, appId).retrieve().bodyToMono(Boolean.class);
     }
 
     public BlockingSessionClient blockingClient() {

@@ -109,7 +109,7 @@ public class R2Session implements Session {
 
     @Override
     public Instant getCreationTime() {
-        return Instant.ofEpochMilli(Long.parseLong(client.get(id, Key.CREATION_TIME.name)));
+        return Instant.ofEpochMilli(Long.parseLong(get(Key.CREATION_TIME)));
     }
 
     @Override
@@ -136,7 +136,7 @@ public class R2Session implements Session {
 
     @Override
     public boolean isExpired() {
-        return client.exist(id);
+        return !client.exist(id);
     }
 
 }

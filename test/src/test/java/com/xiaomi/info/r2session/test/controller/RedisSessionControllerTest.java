@@ -9,11 +9,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.session.SessionRepository;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Copyright (c) 2020 XiaoMi Inc.All Rights Reserved.
@@ -40,5 +45,15 @@ class RedisSessionControllerTest extends MockSessionControllerTest {
         r2Session.setAttribute("key", value);
         Object result = r2Session.getAttribute("key");
         assertThat(value, equalTo(result));
+    }
+
+    @Test
+    public void shouldExpire() throws InterruptedException {
+        R2Session r2Session = new R2Session(client, "testExpire");
+        r2Session.setMaxInactiveInterval(Duration.ofSeconds(1));
+        r2Session.setLastAccessedTime(Instant.now());
+        assertFalse(r2Session.isExpired());
+        TimeUnit.SECONDS.sleep(1);
+        assertTrue(r2Session.isExpired());
     }
 }

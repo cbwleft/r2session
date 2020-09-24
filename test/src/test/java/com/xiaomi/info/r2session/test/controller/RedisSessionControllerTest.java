@@ -2,10 +2,12 @@ package com.xiaomi.info.r2session.test.controller;
 
 import com.xiaomi.info.r2session.api.BlockingSessionClient;
 import com.xiaomi.info.r2session.spring.R2Session;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -17,8 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Copyright (c) 2020 XiaoMi Inc.All Rights Reserved.
@@ -55,5 +56,22 @@ class RedisSessionControllerTest extends MockSessionControllerTest {
         assertFalse(r2Session.isExpired());
         TimeUnit.SECONDS.sleep(1);
         assertTrue(r2Session.isExpired());
+    }
+
+    @Test
+    public void shouldGetWhatISet() {
+        Session session = sessionRepository.createSession();
+        System.out.println(session.getId());
+        Instant creationTime = session.getCreationTime();
+        System.out.println(creationTime);
+        assertNotNull(creationTime);
+        session.setMaxInactiveInterval(Duration.ofSeconds(30));
+        System.out.println(session.getMaxInactiveInterval());
+        assertThat(session.getMaxInactiveInterval(), equalTo(Duration.ofSeconds(30)));
+        Instant now = Instant.now();
+        session.setLastAccessedTime(now);
+        long millis = Duration.between(now, session.getLastAccessedTime()).toMillis();
+        System.out.println(millis);
+        assertTrue(millis < 1);
     }
 }

@@ -63,10 +63,8 @@ public class R2Session implements Session {
     private final ConcurrentHashMap<Key, String> cache = new ConcurrentHashMap<>();
 
     private void set(Key key, String value) {
-        cache.computeIfAbsent(key, (k) -> {
-            client.set(id, k.name, value);
-            return value;
-        });
+        client.set(id, key.name, value);
+        cache.put(key, value);
     }
 
     private String get(Key key) {

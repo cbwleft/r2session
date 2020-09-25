@@ -1,8 +1,6 @@
 package com.xiaomi.info.r2session.test.controller;
 
 import com.xiaomi.info.r2session.api.BlockingSessionClient;
-import com.xiaomi.info.r2session.spring.R2Session;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,21 +39,22 @@ class RedisSessionControllerTest extends MockSessionControllerTest {
 
     @Test
     public void shouldPersistObject() {
-        R2Session r2Session = new R2Session(client, "test");
+        Session session = sessionRepository.createSession();
         List<String> value = Arrays.asList("1", "2", "3");
-        r2Session.setAttribute("key", value);
-        Object result = r2Session.getAttribute("key");
+        session.setAttribute("key", value);
+        Object result = session.getAttribute("key");
         assertThat(value, equalTo(result));
+        sessionRepository.deleteById(session.getId());
     }
 
     @Test
     public void shouldExpire() throws InterruptedException {
-        R2Session r2Session = new R2Session(client, "testExpire");
-        r2Session.setMaxInactiveInterval(Duration.ofSeconds(1));
-        r2Session.setLastAccessedTime(Instant.now());
-        assertFalse(r2Session.isExpired());
+        Session session = sessionRepository.createSession();
+        session.setMaxInactiveInterval(Duration.ofSeconds(1));
+        session.setLastAccessedTime(Instant.now());
+        assertFalse(session.isExpired());
         TimeUnit.SECONDS.sleep(1);
-        assertTrue(r2Session.isExpired());
+        assertTrue(session.isExpired());
     }
 
     @Test
@@ -74,4 +73,5 @@ class RedisSessionControllerTest extends MockSessionControllerTest {
         System.out.println(millis);
         assertTrue(millis < 1);
     }
+
 }

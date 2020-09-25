@@ -1,6 +1,7 @@
 package com.xiaomi.info.r2session.test.config;
 
 import com.xiaomi.info.r2session.api.BlockingSessionClient;
+import com.xiaomi.info.r2session.api.R2SessionClient;
 import com.xiaomi.info.r2session.api.R2SessionWebClient;
 import com.xiaomi.info.r2session.spring.R2IndexedSessionRepository;
 import com.xiaomi.info.r2session.spring.R2Session;
@@ -26,6 +27,11 @@ public class RedisSessionConfig {
 
     @Value("${r2session.app-id}")
     private String appId;
+
+    @Bean
+    public R2SessionClient r2SessionClient() {
+        return new R2SessionWebClient(baseUrl, appId);
+    }
 
     @Bean
     public BlockingSessionClient blockingSessionClient() {
